@@ -1,0 +1,5 @@
+package com.ntt.player_service.entity;
+
+public class Player {
+
+}

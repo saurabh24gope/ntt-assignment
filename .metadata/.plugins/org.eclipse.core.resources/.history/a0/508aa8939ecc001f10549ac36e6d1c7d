@@ -1,0 +1,5 @@
+package com.ntt.match_statistic_service.entity;
+
+public class MatchStatistics {
+
+}

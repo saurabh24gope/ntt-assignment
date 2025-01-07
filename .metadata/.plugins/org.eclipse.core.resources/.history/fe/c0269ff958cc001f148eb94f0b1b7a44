@@ -1,0 +1,64 @@
+package com.ntt.match_service.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.ntt.match_service.dto.MatchRequest;
+import com.ntt.match_service.entity.Match;
+import com.ntt.match_service.repo.MatchRepository;
+
+@Service
+public class MatchService {
+	
+	private final MatchRepository matchRepository;
+
+   
+    public MatchService(MatchRepository matchRepository) {
+        this.matchRepository = matchRepository;
+    }
+    
+    // Create a new match
+    public void createMatch(MatchRequest matchRequest) {
+    	Match match = 
+    }
+
+    // Get all matches
+    public List<Match> getAllMatches() {
+        return matchRepository.findAll();
+    }
+
+    // Get match by ID
+    public ResponseEntity<Match> getMatchById(Long id) {
+        Optional<Match> match = matchRepository.findById(id);
+        return match.map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+    }
+
+   
+    // Update match details
+    public ResponseEntity<Match> updateMatchDetails(Long id, Match matchDetails) {
+        Optional<Match> existingMatch = matchRepository.findById(id);
+        if (existingMatch.isPresent()) {
+            Match match = existingMatch.get();
+            match.setTeam1(matchDetails.getTeam1());
+            match.setTeam2(matchDetails.getTeam2());
+            match.setScore(matchDetails.getScore());
+            match.setStatus(matchDetails.getStatus());
+            return ResponseEntity.ok(matchRepository.save(match));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // Delete match by ID
+    public ResponseEntity<Void> deleteMatch(Long id) {
+        if (matchRepository.existsById(id)) {
+            matchRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+}

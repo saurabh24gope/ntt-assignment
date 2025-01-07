@@ -1,0 +1,5 @@
+package com.ntt.tournament_service.entity;
+
+public class Tournament {
+
+}

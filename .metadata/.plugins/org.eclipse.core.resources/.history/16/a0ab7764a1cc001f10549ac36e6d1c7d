@@ -1,0 +1,110 @@
+package com.ntt.match_service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ntt.match_service.controller.MatchController;
+import com.ntt.match_service.entity.Match;
+import com.ntt.match_service.repo.MatchRepository;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.Optional;
+
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(MatchController.class)
+public class MatchControllerTest {
+
+	    @Autowired
+	    private MockMvc mockMvc;
+
+	
+	    private MatchRepository matchRepository;
+
+	    @Autowired
+	    private ObjectMapper objectMapper;
+
+	    @Test
+	    public void testGetAllMatches() throws Exception {
+	        Match match1 = new Match(1L, "India", "Australia", "250/8", "In Progress");
+	        Match match2 = new Match(2L, "England", "New Zealand", "300/5", "Completed");
+
+	        when(matchRepository.findAll()).thenReturn(Arrays.asList(match1, match2));
+
+	        mockMvc.perform(get("/api/matches"))
+	                .andExpect(status().isOk())
+	                .andExpect(jsonPath("$.size()").value(2))
+	                .andExpect(jsonPath("$[0].team1").value("India"))
+	                .andExpect(jsonPath("$[1].team2").value("New Zealand"));
+
+	        verify(matchRepository, times(1)).findAll();
+	    }
+
+	    @Test
+	    public void testGetMatchById() throws Exception {
+	        Match match = new Match(1L, "India", "Australia", "250/8", "In Progress");
+
+	        when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+
+	        mockMvc.perform(get("/api/matches/1"))
+	                .andExpect(status().isOk())
+	                .andExpect(jsonPath("$.team1").value("India"))
+	                .andExpect(jsonPath("$.team2").value("Australia"));
+
+	        verify(matchRepository, times(1)).findById(1L);
+	    }
+
+	    @Test
+	    public void testCreateMatch() throws Exception {
+	        Match match = new Match(null, "India", "Australia", "250/8", "In Progress");
+	        Match savedMatch = new Match(1L, "India", "Australia", "250/8", "In Progress");
+
+	        when(matchRepository.save(any(Match.class))).thenReturn(savedMatch);
+
+	        mockMvc.perform(post("/api/matches")
+	                        .contentType(MediaType.APPLICATION_JSON)
+	                        .content(objectMapper.writeValueAsString(match)))
+	                .andExpect(status().isOk())
+	                .andExpect(jsonPath("$.id").value(1))
+	                .andExpect(jsonPath("$.team1").value("India"));
+
+	        verify(matchRepository, times(1)).save(any(Match.class));
+	    }
+
+	    @Test
+	    public void testUpdateMatch() throws Exception {
+	        Match existingMatch = new Match(1L, "India", "Australia", "250/8", "In Progress");
+	        Match updatedMatch = new Match(1L, "India", "Australia", "300/8", "Completed");
+
+	        when(matchRepository.findById(1L)).thenReturn(Optional.of(existingMatch));
+	        when(matchRepository.save(any(Match.class))).thenReturn(updatedMatch);
+
+	        mockMvc.perform(put("/api/matches/1")
+	                        .contentType(MediaType.APPLICATION_JSON)
+	                        .content(objectMapper.writeValueAsString(updatedMatch)))
+	                .andExpect(status().isOk())
+	                .andExpect(jsonPath("$.score").value("300/8"))
+	                .andExpect(jsonPath("$.status").value("Completed"));
+
+	        verify(matchRepository, times(1)).findById(1L);
+	        verify(matchRepository, times(1)).save(any(Match.class));
+	    }
+
+	    @Test
+	    public void testDeleteMatch() throws Exception {
+	        when(matchRepository.existsById(1L)).thenReturn(true);
+
+	        mockMvc.perform(delete("/api/matches/1"))
+	                .andExpect(status().isOk());
+
+	        verify(matchRepository, times(1)).existsById(1L);
+	        verify(matchRepository, times(1)).deleteById(1L);
+	    }
+}

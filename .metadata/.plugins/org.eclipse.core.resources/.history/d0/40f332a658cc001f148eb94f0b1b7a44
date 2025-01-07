@@ -1,0 +1,40 @@
+package com.ntt.match_service.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
+public class MatchRequest {
+	
+	
+	private String team1;
+	
+    private String team2;
+    
+    private String score;
+    
+    private String status;
+    
+	public MatchRequest() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    
+	
+
+	public MatchRequest( String team1, String team2, String score, String status) {
+		super();
+		this.team1 = team1;
+		this.team2 = team2;
+		this.score = score;
+		this.status = status;
+	}
+
+
+	
+}

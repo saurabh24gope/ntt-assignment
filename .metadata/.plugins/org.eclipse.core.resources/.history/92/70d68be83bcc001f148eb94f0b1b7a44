@@ -1,0 +1,5 @@
+package com.ntt.match_service.controller;
+
+public class MatchController {
+
+}

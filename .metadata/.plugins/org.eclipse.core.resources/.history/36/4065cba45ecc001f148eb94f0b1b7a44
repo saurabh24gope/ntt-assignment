@@ -1,0 +1,88 @@
+package com.ntt.match_service.controller;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ntt.match_service.dto.MatchRequest;
+import com.ntt.match_service.dto.MatchResponse;
+import com.ntt.match_service.entity.Match;
+import com.ntt.match_service.service.MatchService;
+
+@RestController
+@RequestMapping("/api/matches")
+public class MatchController {
+	
+	@Autowired
+    private MatchService matchService;
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<MatchResponse> getAllMatches() {
+        return matchService.getAllMatches().stream()
+                .map(match -> new MatchResponse(
+                        match.getId(),
+                        match.getTeam1(),
+                        match.getTeam2(),
+                        match.getScore(),
+                        match.getStatus()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public MatchResponse getMatchById(@PathVariable Long id) {
+        Match match = matchService.getMatchById(id);
+        return new MatchResponse(
+                match.getId(),
+                match.getTeam1(),
+                match.getTeam2(),
+                match.getScore(),
+                match.getStatus()
+        );
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public MatchResponse createMatch(@RequestBody MatchRequest matchRequest) {
+        Match match = matchService.createMatch(matchRequest);
+        return new MatchResponse(
+                match.getId(),
+                match.getTeam1(),
+                match.getTeam2(),
+                match.getScore(),
+                match.getStatus()
+        );
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public MatchResponse updateMatchDetails(@PathVariable Long id, @RequestBody MatchRequest matchRequest) {
+        Match updatedMatch = matchService.updateMatchDetails(id, matchRequest);
+        return new MatchResponse(
+                updatedMatch.getId(),
+                updatedMatch.getTeam1(),
+                updatedMatch.getTeam2(),
+                updatedMatch.getScore(),
+                updatedMatch.getStatus()
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMatch(@PathVariable Long id) {
+        matchService.deleteMatch(id);
+    }
+}

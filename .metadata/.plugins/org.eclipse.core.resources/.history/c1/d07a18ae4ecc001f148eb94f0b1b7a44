@@ -1,0 +1,67 @@
+package com.ntt.match_service.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ntt.match_service.entity.Match;
+import com.ntt.match_service.repo.MatchRepository;
+
+@RestController
+@RequestMapping("/api/matches")
+public class MatchController {
+	
+	@Autowired
+	public MatchRepository matchRepository;
+	
+	@GetMapping
+	public List<Match> getAllMatches(){
+		return matchRepository.findAll();
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<Match> getMatchById(@PathVariable Long id){
+		return matchRepository.findById(id)
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
+	}
+	
+	@PostMapping
+	public ResponseEntity<Match> createMatch(@RequestBody Match match) {
+		
+		 Match save = matchRepository.save(match);
+		 return ResponseEntity.status(HttpStatus.CREATED).body(save);
+	}
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<Match> updateMatchDetails(@PathVariable Long id,
+			@RequestBody Match matchDetails){
+		
+		return matchRepository.findById(id).map(match ->{
+			match.setTeam1(matchDetails.getTeam1());
+			match.setTeam2(matchDetails.getTeam2());
+			match.setScore(matchDetails.getScore());
+			match.setStatus(matchDetails.getStatus());
+			return ResponseEntity.ok(matchRepository.save(match));
+		}).orElse(ResponseEntity.notFound().build());
+	}
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteMatch(@PathVariable Long id){
+		if(matchRepository.existsById(id)) {
+			matchRepository.deleteById(id);
+			return ResponseEntity.ok().build();
+		}
+		return ResponseEntity.notFound().build();
+	}
+
+}

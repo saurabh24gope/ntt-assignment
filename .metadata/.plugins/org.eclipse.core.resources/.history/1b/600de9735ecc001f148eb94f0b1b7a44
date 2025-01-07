@@ -1,0 +1,61 @@
+package com.ntt.match_service.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ntt.match_service.dto.MatchRequest;
+import com.ntt.match_service.entity.Match;
+import com.ntt.match_service.service.MatchService;
+
+@RestController
+@RequestMapping("/api/matches")
+public class MatchController {
+	
+	private final MatchService matchService;
+
+    
+    public MatchController(MatchService matchService) {
+        this.matchService = matchService;
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK) // 200 OK
+    public List<Match> getAllMatches() {
+        return matchService.getAllMatches();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK) // 200 OK
+    public Match getMatchById(@PathVariable Long id) {
+        return matchService.getMatchById(id).getBody(); // Assuming service returns ResponseEntity
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED) // 201 Created
+    public Match createMatch(@RequestBody MatchRequest matchRequest) {
+        return matchService.createMatch(matchRequest);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK) // 200 OK
+    public Match updateMatchDetails(@PathVariable Long id, @RequestBody MatchRequest matchRequest) {
+        return matchService.updateMatchDetails(id, matchRequest).getBody(); // Assuming service returns ResponseEntity
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // 204 No Content
+    public void deleteMatch(@PathVariable Long id) {
+        matchService.deleteMatch(id); 
+    }
+}

@@ -1,0 +1,5 @@
+package com.ntt.match_service.entity;
+
+public class Match {
+
+}
